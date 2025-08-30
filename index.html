@@ -45,8 +45,7 @@
         .control-group input[type="text"],
         .control-group input[type="email"],
         .control-group input[type="tel"],
-        .control-group input[type="number"], 
-        .control-group input[type="range"],
+        .control-group input[type="number"],
         .control-group textarea {
             width: 100%;
             padding: 10px;
@@ -54,6 +53,15 @@
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 1em;
+        }
+        /* Sembunyikan panah di input number untuk tampilan lebih bersih */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
         }
         .input-with-unit { display: flex; align-items: center; gap: 10px; }
         .input-with-unit input[type="number"] { flex: 1; }
@@ -83,7 +91,7 @@
         }
         @media (max-width: 768px) {
             .input-controls { grid-template-columns: 1fr; }
-            .nav-menu, .lang-switcher { display: none; } /* Sembunyikan di mobile, perlu menu burger jika kompleks */
+            .nav-menu, .lang-switcher { display: none; }
         }
     </style>
 </head>
@@ -154,13 +162,13 @@
                     <div class="input-controls">
                         <div class="control-group">
                             <label for="land-area" data-lang="calc_land_area">Luas Tanah (m²)</label>
-                            <input type="number" id="land-area" value="150" min="1" class="w-full">
+                            <input type="number" id="land-area" value="150" class="w-full">
                         </div>
                         <div class="control-group">
                             <label for="price-per-are" data-lang="calc_price_are">Harga per Are (100 m²)</label>
                             <div class="input-with-unit">
                                 <span>Rp</span>
-                                <input type="number" id="price-per-are" min="500000000" max="550000000" value="500000000" step="1000000">
+                                <input type="number" id="price-per-are" value="500000000">
                             </div>
                         </div>
                     </div>
@@ -169,13 +177,13 @@
                         <div class="control-group">
                             <label for="dp-percentage" data-lang="calc_dp_percentage">Uang Muka (DP) (%)</label>
                             <div class="input-with-unit">
-                                <input type="number" id="dp-percentage" min="20" max="100" value="20" step="10"><span>%</span>
+                                <input type="number" id="dp-percentage" value="20"><span>%</span>
                             </div>
                             <div class="warning" id="dp-warning"></div>
                         </div>
                         <div class="control-group">
                             <label for="installments" data-lang="calc_installments">Jangka Waktu Cicilan (Bulan)</label>
-                            <input type="number" id="installments" value="3" min="3" max="17">
+                            <input type="number" id="installments" value="3">
                         </div>
                     </div>
                     <h3 class="text-xl font-semibold mb-4 mt-6 border-b pb-2" data-lang="calc_step3_title">3. Rincian Simulasi Anda</h3>
@@ -355,7 +363,6 @@
                 document.querySelectorAll('[data-lang]').forEach(el => {
                     const key = el.dataset.lang;
                     if (translations[lang][key]) {
-                        // Gunakan innerHTML untuk elemen yang mengandung tag HTML seperti <strong>
                         if (key.includes('desc') || key.includes('cta_subtitle')) {
                              el.innerHTML = translations[lang][key];
                         } else {
@@ -455,22 +462,10 @@
 
                 function calculateAndDisplay() {
                     let landArea = parseFloat(landAreaInput.value) || 0;
-                    let pricePerAre = parseFloat(pricePerAreInput.value) || 500000000;
-                    let dpPercentage = parseFloat(dpPercentageInput.value) || 20;
-                    let installments = parseInt(installmentsInput.value) || 3;
-
-                    if (dpPercentage < 20) dpPercentage = 20;
-                    if (dpPercentage > 100) dpPercentage = 100;
-                    dpPercentageInput.value = dpPercentage;
-
-                    if (installments < 3) installments = 3;
-                    if (installments > 17) installments = 17;
-                    installmentsInput.value = installments;
-
-                    if (pricePerAre < 500000000) pricePerAre = 500000000;
-                    if (pricePerAre > 550000000) pricePerAre = 550000000;
-                    pricePerAreInput.value = pricePerAre;
-
+                    let pricePerAre = parseFloat(pricePerAreInput.value) || 0;
+                    let dpPercentage = parseFloat(dpPercentageInput.value) || 0;
+                    let installments = parseInt(installmentsInput.value) || 1;
+                    
                     const numberOfAre = landArea / 100;
                     const totalPrice = numberOfAre * pricePerAre;
                     const totalDP = totalPrice * (dpPercentage / 100);

@@ -10,6 +10,9 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        body.modal-open {
+            overflow: hidden;
+        }
         .whatsapp-button {
             position: fixed;
             bottom: 30px;
@@ -28,6 +31,45 @@
             background-size: cover;
             background-position: center;
         }
+        /* Style untuk Modal (Pop-up) */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            max-width: 56rem; /* Lebar maksimal modal */
+            width: 100%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: 300;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .modal-close:hover {
+            color: #111827;
+        }
+
         .input-controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -54,7 +96,6 @@
             box-sizing: border-box;
             font-size: 1em;
         }
-        /* Sembunyikan panah di input number untuk tampilan lebih bersih */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
           -webkit-appearance: none; 
@@ -107,9 +148,9 @@
                 <ul class="nav-menu flex space-x-8">
                     <li><a href="#" class="nav-link" data-target="beranda" data-lang="nav_home">Beranda</a></li>
                     <li><a href="#" class="nav-link" data-target="siteplan" data-lang="nav_siteplan">Siteplan</a></li>
-                    <li><a href="#" class="nav-link" data-target="kalkulator" data-lang="nav_simulation">Simulasi</a></li>
-                    <li><a href="#" class="nav-link" data-target="pemesanan" data-lang="nav_ownership">Cara Miliki</a></li>
-                    <li><a href="#" class="nav-link" data-target="kontak" data-lang="nav_contact">Kontak</a></li>
+                    <li><a href="#" class="nav-link" data-modal-target="modal-kalkulator" data-lang="nav_simulation">Simulasi</a></li>
+                    <li><a href="#" class="nav-link" data-modal-target="modal-pemesanan" data-lang="nav_ownership">Cara Miliki</a></li>
+                    <li><a href="#" class="nav-link" data-modal-target="modal-kontak" data-lang="nav_contact">Kontak</a></li>
                 </ul>
                 <div class="lang-switcher text-gray-600 font-medium">
                     <button id="lang-id" class="active">ID</button>
@@ -122,7 +163,6 @@
 
     <!-- Konten Utama -->
     <main>
-        
         <!-- Halaman Beranda -->
         <div id="beranda" class="page-content">
             <section class="hero-section text-white text-center py-24 px-6">
@@ -152,88 +192,75 @@
                 <p class="text-center text-gray-500 mt-4" data-lang="siteplan_disclaimer">*Gambar siteplan di atas adalah ilustrasi untuk membantu visualisasi Anda.</p>
             </section>
         </div>
-        
-        <!-- Halaman Kalkulator -->
-        <div id="kalkulator" class="page-content hidden container mx-auto px-6 pt-8 pb-12">
-            <div class="container mx-auto max-w-4xl">
-                 <h2 class="text-3xl font-bold text-center mb-8 text-blue-800" data-lang="calc_title">Simulasi Investasi Cerdas Anda</h2>
-                <div class="bg-white p-8 rounded-lg shadow-lg border">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2" data-lang="calc_step1_title">1. Tentukan Properti Impian Anda</h3>
-                    <div class="input-controls">
-                        <div class="control-group">
-                            <label for="land-area" data-lang="calc_land_area">Luas Tanah (m²)</label>
-                            <input type="number" id="land-area" value="150" class="w-full">
-                        </div>
-                        <div class="control-group">
-                            <label for="price-per-are" data-lang="calc_price_are">Harga per Are (100 m²)</label>
-                            <div class="input-with-unit">
-                                <span>Rp</span>
-                                <input type="number" id="price-per-are" value="500000000">
-                            </div>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4 mt-6 border-b pb-2" data-lang="calc_step2_title">2. Atur Skema Pembayaran Anda</h3>
-                    <div class="input-controls">
-                        <div class="control-group">
-                            <label for="dp-percentage" data-lang="calc_dp_percentage">Uang Muka (DP) (%)</label>
-                            <div class="input-with-unit">
-                                <input type="number" id="dp-percentage" value="20"><span>%</span>
-                            </div>
-                            <div class="warning" id="dp-warning"></div>
-                        </div>
-                        <div class="control-group">
-                            <label for="installments" data-lang="calc_installments">Jangka Waktu Cicilan (Bulan)</label>
-                            <input type="number" id="installments" value="3">
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4 mt-6 border-b pb-2" data-lang="calc_step3_title">3. Rincian Simulasi Anda</h3>
-                    <div class="info-grid">
-                        <div class="info-item" style="grid-column: 1 / -1;"><span class="label" data-lang="calc_result_total_price">Estimasi Total Harga</span><span class="value" id="total-price"></span></div>
-                        <div class="info-item"><span class="label" data-lang="calc_result_total_dp">Total DP</span><span class="value" id="total-dp"></span></div>
-                        <div class="info-item"><span class="label" data-lang="calc_result_booking_fee">Tanda Jadi (Pengurang DP)</span><span class="value" id="booking-fee"></span></div>
-                        <div class="info-item highlight"><span class="label" data-lang="calc_result_remaining_dp">Sisa Pelunasan DP</span><span class="value" id="remaining-dp"></span></div>
-                        <div class="info-item"><span class="label" data-lang="calc_result_remaining_balance">Sisa Pokok</span><span class="value" id="remaining-balance"></span></div>
-                        <div class="info-item highlight" style="grid-column: 1 / -1;"><span class="label" data-lang="calc_result_monthly_installment">Estimasi Cicilan per Bulan</span><span class="value" id="monthly-installment"></span></div>
-                    </div>
+    </main>
+    
+    <!-- Area Modal (Pop-up) -->
+    
+    <!-- Modal Kalkulator -->
+    <div id="modal-kalkulator" class="modal hidden">
+        <div class="modal-content max-w-4xl">
+            <button class="modal-close" data-dismiss-modal>&times;</button>
+            <h2 class="text-3xl font-bold text-center mb-8 text-blue-800" data-lang="calc_title">Simulasi Investasi Cerdas Anda</h2>
+            <div class="border p-8 rounded-lg bg-white">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2" data-lang="calc_step1_title">1. Tentukan Properti Impian Anda</h3>
+                <div class="input-controls">
+                    <div class="control-group"><label for="land-area" data-lang="calc_land_area">Luas Tanah (m²)</label><input type="number" id="land-area" value="150" class="w-full"></div>
+                    <div class="control-group"><label for="price-per-are" data-lang="calc_price_are">Harga per Are (100 m²)</label><div class="input-with-unit"><span>Rp</span><input type="number" id="price-per-are" value="500000000"></div></div>
+                </div>
+                <h3 class="text-xl font-semibold mb-4 mt-6 border-b pb-2" data-lang="calc_step2_title">2. Atur Skema Pembayaran Anda</h3>
+                <div class="input-controls">
+                    <div class="control-group"><label for="dp-percentage" data-lang="calc_dp_percentage">Uang Muka (DP) (%)</label><div class="input-with-unit"><input type="number" id="dp-percentage" value="20"><span>%</span></div><div class="warning" id="dp-warning"></div></div>
+                    <div class="control-group"><label for="installments" data-lang="calc_installments">Jangka Waktu Cicilan (Bulan)</label><input type="number" id="installments" value="3"></div>
+                </div>
+                <h3 class="text-xl font-semibold mb-4 mt-6 border-b pb-2" data-lang="calc_step3_title">3. Rincian Simulasi Anda</h3>
+                <div class="info-grid">
+                    <div class="info-item" style="grid-column: 1 / -1;"><span class="label" data-lang="calc_result_total_price">Estimasi Total Harga</span><span class="value" id="total-price"></span></div>
+                    <div class="info-item"><span class="label" data-lang="calc_result_total_dp">Total DP</span><span class="value" id="total-dp"></span></div>
+                    <div class="info-item"><span class="label" data-lang="calc_result_booking_fee">Tanda Jadi (Pengurang DP)</span><span class="value" id="booking-fee"></span></div>
+                    <div class="info-item highlight"><span class="label" data-lang="calc_result_remaining_dp">Sisa Pelunasan DP</span><span class="value" id="remaining-dp"></span></div>
+                    <div class="info-item"><span class="label" data-lang="calc_result_remaining_balance">Sisa Pokok</span><span class="value" id="remaining-balance"></span></div>
+                    <div class="info-item highlight" style="grid-column: 1 / -1;"><span class="label" data-lang="calc_result_monthly_installment">Estimasi Cicilan per Bulan</span><span class="value" id="monthly-installment"></span></div>
                 </div>
             </div>
         </div>
-
-        <!-- Halaman Pemesanan -->
-        <div id="pemesanan" class="page-content hidden container mx-auto px-6 pt-8 pb-12">
-             <section class="text-center">
-                <h2 class="text-3xl font-bold text-center mb-8 text-blue-800" data-lang="ownership_title">Panduan Mudah Memiliki Unit Anda</h2>
-                <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg border text-left">
-                    <div class="space-y-6">
-                        <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div><div><h4 class="text-xl font-semibold" data-lang="ownership_step1_title">Amankan Unit Pilihan Anda</h4><p class="text-gray-600 mt-1" data-lang="ownership_step1_desc">Lakukan pembayaran Tanda Jadi (Booking Fee) sebesar <strong>IDR 10.000.000</strong> untuk reservasi unit. Ini adalah langkah pertama Anda, dan tentu saja, akan menjadi pengurang uang muka (DP).</p></div></div>
-                        <div class="pl-14"><div class="bg-gray-100 p-4 rounded-md border"><h5 class="font-bold mb-2" data-lang="ownership_transfer_title">Tujuan Transfer:</h5><p><strong data-lang="ownership_bank">Bank:</strong> Bank Mandiri</p><p><strong data-lang="ownership_account_name">Nama Akun:</strong> PT Asana Graha Nusantara</p><p><strong data-lang="ownership_account_number">Nomor Rekening:</strong> 1750004137419</p></div></div>
-                        <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-lg">2</div><div><h4 class="text-xl font-semibold" data-lang="ownership_step2_title">Konfirmasi dengan Mudah</h4><p class="text-gray-600 mt-1" data-lang="ownership_step2_desc">Setelah transfer berhasil, cukup kirimkan buktinya kepada kami melalui WhatsApp. Tim kami akan segera membantu Anda.</p></div></div>
-                        <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-lg">3</div><div><h4 class="text-xl font-semibold" data-lang="ownership_step3_title">Selamat! Proses Dimulai</h4><p class="text-gray-600 mt-1" data-lang="ownership_step3_desc">Kami akan segera memverifikasi dan mengirimkan tanda terima resmi sebagai bukti bahwa Anda selangkah lebih dekat dengan surga pribadi Anda.</p></div></div>
-                    </div>
-                    <div class="text-center mt-10 border-t pt-6"><p class="text-gray-700 mb-4" data-lang="ownership_cta">Siap untuk memulai? Klik untuk konfirmasi pembayaran atau bertanya.</p><a href="https://wa.me/6285711880101?text=Halo,%20saya%20sudah%20melakukan%20transfer%20tanda%20jadi%20untuk%20unit%20di%20Azura%20Pasut." target="_blank" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full hover:bg-green-600 transition duration-300 inline-flex items-center space-x-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg><span data-lang="ownership_wa_button">Konfirmasi via WhatsApp</span></a></div>
+    </div>
+    
+    <!-- Modal Pemesanan -->
+    <div id="modal-pemesanan" class="modal hidden">
+        <div class="modal-content max-w-4xl">
+            <button class="modal-close" data-dismiss-modal>&times;</button>
+            <h2 class="text-3xl font-bold text-center mb-8 text-blue-800" data-lang="ownership_title">Panduan Mudah Memiliki Unit Anda</h2>
+            <div class="border p-8 rounded-lg bg-white text-left">
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div><div><h4 class="text-xl font-semibold" data-lang="ownership_step1_title">Amankan Unit Pilihan Anda</h4><p class="text-gray-600 mt-1" data-lang="ownership_step1_desc">Lakukan pembayaran Tanda Jadi (Booking Fee) sebesar <strong>IDR 10.000.000</strong> untuk reservasi unit. Ini adalah langkah pertama Anda, dan tentu saja, akan menjadi pengurang uang muka (DP).</p></div></div>
+                    <div class="pl-14"><div class="bg-gray-100 p-4 rounded-md border"><h5 class="font-bold mb-2" data-lang="ownership_transfer_title">Tujuan Transfer:</h5><p><strong data-lang="ownership_bank">Bank:</strong> Bank Mandiri</p><p><strong data-lang="ownership_account_name">Nama Akun:</strong> PT Asana Graha Nusantara</p><p><strong data-lang="ownership_account_number">Nomor Rekening:</strong> 1750004137419</p></div></div>
+                    <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-lg">2</div><div><h4 class="text-xl font-semibold" data-lang="ownership_step2_title">Konfirmasi dengan Mudah</h4><p class="text-gray-600 mt-1" data-lang="ownership_step2_desc">Setelah transfer berhasil, cukup kirimkan buktinya kepada kami melalui WhatsApp. Tim kami akan segera membantu Anda.</p></div></div>
+                    <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-lg">3</div><div><h4 class="text-xl font-semibold" data-lang="ownership_step3_title">Selamat! Proses Dimulai</h4><p class="text-gray-600 mt-1" data-lang="ownership_step3_desc">Kami akan segera memverifikasi dan mengirimkan tanda terima resmi sebagai bukti bahwa Anda selangkah lebih dekat dengan surga pribadi Anda.</p></div></div>
                 </div>
-            </section>
+                <div class="text-center mt-10 border-t pt-6"><p class="text-gray-700 mb-4" data-lang="ownership_cta">Siap untuk memulai? Klik untuk konfirmasi pembayaran atau bertanya.</p><a href="https://wa.me/6285711880101?text=Halo,%20saya%20sudah%20melakukan%20transfer%20tanda%20jadi%20untuk%20unit%20di%20Azura%20Pasut." target="_blank" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full hover:bg-green-600 transition duration-300 inline-flex items-center space-x-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg><span data-lang="ownership_wa_button">Konfirmasi via WhatsApp</span></a></div>
+            </div>
         </div>
+    </div>
 
-        <!-- Halaman Kontak -->
-        <div id="kontak" class="page-content hidden container mx-auto px-6 pt-8 pb-12">
-             <section>
-                <h2 class="text-3xl font-bold text-center mb-2 text-blue-800" data-lang="contact_title">Mari Terhubung</h2>
-                <p class="text-center text-gray-600 mb-8" data-lang="contact_subtitle">Kami ingin mendengar dari Anda. Silakan isi formulir di bawah ini, dan tim kami akan segera menghubungi Anda kembali.</p>
-                <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg border">
-                    <form id="contact-form" action="https://formspree.io/f/xjkeyjqw" method="POST" class="space-y-6">
-                        <div class="control-group"><label for="name" data-lang="contact_form_name">Nama Lengkap</label><input type="text" id="name" name="name" required></div>
-                        <div class="control-group"><label for="email" data-lang="contact_form_email">Alamat Email</label><input type="email" id="email" name="email" required></div>
-                        <div class="control-group"><label for="phone" data-lang="contact_form_phone">Nomor Telepon/WhatsApp</label><input type="tel" id="phone" name="phone"></div>
-                        <div class="control-group"><label for="message" data-lang="contact_form_message">Pesan Anda</label><textarea id="message" name="message" rows="4" required></textarea></div>
-                        <div><button type="submit" class="w-full bg-blue-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-800 transition duration-300" data-lang="contact_form_submit">Kirim Pesan</button></div>
-                    </form>
-                    <div id="form-status" class="mt-4 text-center font-medium"></div>
-                </div>
-            </section>
+    <!-- Modal Kontak -->
+    <div id="modal-kontak" class="modal hidden">
+        <div class="modal-content max-w-2xl">
+            <button class="modal-close" data-dismiss-modal>&times;</button>
+            <h2 class="text-3xl font-bold text-center mb-2 text-blue-800" data-lang="contact_title">Mari Terhubung</h2>
+            <p class="text-center text-gray-600 mb-8" data-lang="contact_subtitle">Kami ingin mendengar dari Anda. Silakan isi formulir di bawah ini, dan tim kami akan segera menghubungi Anda kembali.</p>
+            <div class="border p-8 rounded-lg bg-white">
+                <form id="contact-form" action="https://formspree.io/f/xjkeyjqw" method="POST" class="space-y-6">
+                    <div class="control-group"><label for="name" data-lang="contact_form_name">Nama Lengkap</label><input type="text" id="name" name="name" required></div>
+                    <div class="control-group"><label for="email" data-lang="contact_form_email">Alamat Email</label><input type="email" id="email" name="email" required></div>
+                    <div class="control-group"><label for="phone" data-lang="contact_form_phone">Nomor Telepon/WhatsApp</label><input type="tel" id="phone" name="phone"></div>
+                    <div class="control-group"><label for="message" data-lang="contact_form_message">Pesan Anda</label><textarea id="message" name="message" rows="4" required></textarea></div>
+                    <div><button type="submit" class="w-full bg-blue-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-800 transition duration-300" data-lang="contact_form_submit">Kirim Pesan</button></div>
+                </form>
+                <div id="form-status" class="mt-4 text-center font-medium"></div>
+            </div>
         </div>
-    </main>
-
+    </div>
+    
     <!-- Footer -->
     <footer class="bg-gray-800 text-white mt-12 py-6">
         <div class="container mx-auto px-6 text-center">
@@ -250,116 +277,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             // --- KAMUS TERJEMAHAN ---
             const translations = {
-                'id': {
-                    'page_title': "Azura Pasut - Wujudkan Surga Pribadi Anda di Bali",
-                    'nav_home': "Beranda",
-                    'nav_siteplan': "Siteplan",
-                    'nav_simulation': "Simulasi",
-                    'nav_ownership': "Cara Miliki",
-                    'nav_contact': "Kontak",
-                    'hero_title': "Azura Pasut: Di Mana Impian dan Alam Bali Menyatu",
-                    'hero_subtitle': "Bayangkan memulai hari dengan sapaan sejuk Gunung Batukaru, dan menutupnya dengan lukisan senja keemasan di Pantai Pasut. Di sini, di antara bisikan hamparan sawah, bukan sekadar tanah yang Anda miliki, tapi sebuah kanvas untuk masa depan yang damai dan penuh inspirasi.",
-                    'cta_title': "Langkah Pertama Menuju Impian Anda",
-                    'cta_subtitle': "Kami percaya setiap impian berharga. Mari berdiskusi santai, tanpa komitmen, tentang bagaimana Anda bisa menjadi bagian dari keindahan Azura Pasut. Tim kami siap mendengarkan dan membantu Anda.",
-                    'cta_button': "Diskusikan via WhatsApp",
-                    'siteplan_title': "Menata Masa Depan Anda: Siteplan Azura Pasut",
-                    'siteplan_disclaimer': "*Gambar siteplan di atas adalah ilustrasi untuk membantu visualisasi Anda.",
-                    'calc_title': "Simulasi Investasi Cerdas Anda",
-                    'calc_step1_title': "1. Tentukan Properti Impian Anda",
-                    'calc_land_area': "Luas Tanah (m²)",
-                    'calc_price_are': "Harga per Are (100 m²)",
-                    'calc_step2_title': "2. Atur Skema Pembayaran Anda",
-                    'calc_dp_percentage': "Uang Muka (DP) (%)",
-                    'calc_installments': "Jangka Waktu Cicilan (Bulan)",
-                    'calc_step3_title': "3. Rincian Simulasi Anda",
-                    'calc_result_total_price': "Estimasi Total Harga",
-                    'calc_result_total_dp': "Total DP",
-                    'calc_result_booking_fee': "Tanda Jadi (Pengurang DP)",
-                    'calc_result_remaining_dp': "Sisa Pelunasan DP",
-                    'calc_result_remaining_balance': "Sisa Pokok",
-                    'calc_result_monthly_installment': "Estimasi Cicilan per Bulan",
-                    'ownership_title': "Panduan Mudah Memiliki Unit Anda",
-                    'ownership_step1_title': "Amankan Unit Pilihan Anda",
-                    'ownership_step1_desc': "Lakukan pembayaran Tanda Jadi (Booking Fee) sebesar <strong>IDR 10.000.000</strong> untuk reservasi unit. Ini adalah langkah pertama Anda, dan tentu saja, akan menjadi pengurang uang muka (DP).",
-                    'ownership_transfer_title': "Tujuan Transfer:",
-                    'ownership_bank': "Bank:",
-                    'ownership_account_name': "Nama Akun:",
-                    'ownership_account_number': "Nomor Rekening:",
-                    'ownership_step2_title': "Konfirmasi dengan Mudah",
-                    'ownership_step2_desc': "Setelah transfer berhasil, cukup kirimkan buktinya kepada kami melalui WhatsApp. Tim kami akan segera membantu Anda.",
-                    'ownership_step3_title': "Selamat! Proses Dimulai",
-                    'ownership_step3_desc': "Kami akan segera memverifikasi dan mengirimkan tanda terima resmi sebagai bukti bahwa Anda selangkah lebih dekat dengan surga pribadi Anda.",
-                    'ownership_cta': "Siap untuk memulai? Klik untuk konfirmasi pembayaran atau bertanya.",
-                    'ownership_wa_button': "Konfirmasi via WhatsApp",
-                    'contact_title': "Mari Terhubung",
-                    'contact_subtitle': "Kami ingin mendengar dari Anda. Silakan isi formulir di bawah ini, dan tim kami akan segera menghubungi Anda kembali.",
-                    'contact_form_name': "Nama Lengkap",
-                    'contact_form_email': "Alamat Email",
-                    'contact_form_phone': "Nomor Telepon/WhatsApp",
-                    'contact_form_message': "Pesan Anda",
-                    'contact_form_submit': "Kirim Pesan",
-                    'footer_text': "© 2025 Azura Pasut. All Rights Reserved."
-                },
-                'en': {
-                    'page_title': "Azura Pasut - Realize Your Private Paradise in Bali",
-                    'nav_home': "Home",
-                    'nav_siteplan': "Siteplan",
-                    'nav_simulation': "Simulation",
-                    'nav_ownership': "How to Own",
-                    'nav_contact': "Contact",
-                    'hero_title': "Azura Pasut: Where Dreams and Balinese Nature Unite",
-                    'hero_subtitle': "Imagine starting your day with the cool greetings of Mount Batukaru, and ending it with a golden sunset painting at Pasut Beach. Here, amidst the whispers of rice fields, you own not just land, but a canvas for a peaceful and inspiring future.",
-                    'cta_title': "Your First Step Towards Your Dream",
-                    'cta_subtitle': "We believe every dream is precious. Let's have a casual, no-commitment discussion about how you can be part of Azura Pasut's beauty. Our team is ready to listen and assist you.",
-                    'cta_button': "Discuss via WhatsApp",
-                    'siteplan_title': "Designing Your Future: Azura Pasut Siteplan",
-                    'siteplan_disclaimer': "*The siteplan image above is an illustration to help your visualization.",
-                    'calc_title': "Your Smart Investment Simulation",
-                    'calc_step1_title': "1. Define Your Dream Property",
-                    'calc_land_area': "Land Area (m²)",
-                    'calc_price_are': "Price per Are (100 m²)",
-                    'calc_step2_title': "2. Set Up Your Payment Scheme",
-                    'calc_dp_percentage': "Down Payment (DP) (%)",
-                    'calc_installments': "Installment Period (Months)",
-                    'calc_step3_title': "3. Your Simulation Details",
-                    'calc_result_total_price': "Estimated Total Price",
-                    'calc_result_total_dp': "Total DP",
-                    'calc_result_booking_fee': "Booking Fee (Reduces DP)",
-                    'calc_result_remaining_dp': "Remaining DP Payment",
-                    'calc_result_remaining_balance': "Remaining Principal",
-                    'calc_result_monthly_installment': "Estimated Monthly Installment",
-                    'ownership_title': "Easy Guide to Owning Your Unit",
-                    'ownership_step1_title': "Secure Your Chosen Unit",
-                    'ownership_step1_desc': "Make a Booking Fee payment of <strong>IDR 10,000,000</strong> to reserve your unit. This is your first step, and of course, it will be deducted from the down payment (DP).",
-                    'ownership_transfer_title': "Transfer Destination:",
-                    'ownership_bank': "Bank:",
-                    'ownership_account_name': "Account Name:",
-                    'ownership_account_number': "Account Number:",
-                    'ownership_step2_title': "Confirm with Ease",
-                    'ownership_step2_desc': "After a successful transfer, simply send the proof to us via WhatsApp. Our team will assist you promptly.",
-                    'ownership_step3_title': "Congratulations! The Process Begins",
-                    'ownership_step3_desc': "We will immediately verify and send an official receipt as proof that you are one step closer to your private paradise.",
-                    'ownership_cta': "Ready to start? Click to confirm your payment or ask a question.",
-                    'ownership_wa_button': "Confirm via WhatsApp",
-                    'contact_title': "Let's Get in Touch",
-                    'contact_subtitle': "We'd love to hear from you. Please fill out the form below, and our team will get back to you shortly.",
-                    'contact_form_name': "Full Name",
-                    'contact_form_email': "Email Address",
-                    'contact_form_phone': "Phone Number/WhatsApp",
-                    'contact_form_message': "Your Message",
-                    'contact_form_submit': "Send Message",
-                    'footer_text': "© 2025 Azura Pasut. All Rights Reserved."
-                }
+                'id': { 'page_title': "Azura Pasut - Wujudkan Surga Pribadi Anda di Bali", 'nav_home': "Beranda", 'nav_siteplan': "Siteplan", 'nav_simulation': "Simulasi", 'nav_ownership': "Cara Miliki", 'nav_contact': "Kontak", 'hero_title': "Azura Pasut: Di Mana Impian dan Alam Bali Menyatu", 'hero_subtitle': "Bayangkan memulai hari dengan sapaan sejuk Gunung Batukaru, dan menutupnya dengan lukisan senja keemasan di Pantai Pasut. Di sini, di antara bisikan hamparan sawah, bukan sekadar tanah yang Anda miliki, tapi sebuah kanvas untuk masa depan yang damai dan penuh inspirasi.", 'cta_title': "Langkah Pertama Menuju Impian Anda", 'cta_subtitle': "Kami percaya setiap impian berharga. Mari berdiskusi santai, tanpa komitmen, tentang bagaimana Anda bisa menjadi bagian dari keindahan Azura Pasut. Tim kami siap mendengarkan dan membantu Anda.", 'cta_button': "Diskusikan via WhatsApp", 'siteplan_title': "Menata Masa Depan Anda: Siteplan Azura Pasut", 'siteplan_disclaimer': "*Gambar siteplan di atas adalah ilustrasi untuk membantu visualisasi Anda.", 'calc_title': "Simulasi Investasi Cerdas Anda", 'calc_step1_title': "1. Tentukan Properti Impian Anda", 'calc_land_area': "Luas Tanah (m²)", 'calc_price_are': "Harga per Are (100 m²)", 'calc_step2_title': "2. Atur Skema Pembayaran Anda", 'calc_dp_percentage': "Uang Muka (DP) (%)", 'calc_installments': "Jangka Waktu Cicilan (Bulan)", 'calc_step3_title': "3. Rincian Simulasi Anda", 'calc_result_total_price': "Estimasi Total Harga", 'calc_result_total_dp': "Total DP", 'calc_result_booking_fee': "Tanda Jadi (Pengurang DP)", 'calc_result_remaining_dp': "Sisa Pelunasan DP", 'calc_result_remaining_balance': "Sisa Pokok", 'calc_result_monthly_installment': "Estimasi Cicilan per Bulan", 'ownership_title': "Panduan Mudah Memiliki Unit Anda", 'ownership_step1_title': "Amankan Unit Pilihan Anda", 'ownership_step1_desc': "Lakukan pembayaran Tanda Jadi (Booking Fee) sebesar <strong>IDR 10.000.000</strong> untuk reservasi unit. Ini adalah langkah pertama Anda, dan tentu saja, akan menjadi pengurang uang muka (DP).", 'ownership_transfer_title': "Tujuan Transfer:", 'ownership_bank': "Bank:", 'ownership_account_name': "Nama Akun:", 'ownership_account_number': "Nomor Rekening:", 'ownership_step2_title': "Konfirmasi dengan Mudah", 'ownership_step2_desc': "Setelah transfer berhasil, cukup kirimkan buktinya kepada kami melalui WhatsApp. Tim kami akan segera membantu Anda.", 'ownership_step3_title': "Selamat! Proses Dimulai", 'ownership_step3_desc': "Kami akan segera memverifikasi dan mengirimkan tanda terima resmi sebagai bukti bahwa Anda selangkah lebih dekat dengan surga pribadi Anda.", 'ownership_cta': "Siap untuk memulai? Klik untuk konfirmasi pembayaran atau bertanya.", 'ownership_wa_button': "Konfirmasi via WhatsApp", 'contact_title': "Mari Terhubung", 'contact_subtitle': "Kami ingin mendengar dari Anda. Silakan isi formulir di bawah ini, dan tim kami akan segera menghubungi Anda kembali.", 'contact_form_name': "Nama Lengkap", 'contact_form_email': "Alamat Email", 'contact_form_phone': "Nomor Telepon/WhatsApp", 'contact_form_message': "Pesan Anda", 'contact_form_submit': "Kirim Pesan", 'footer_text': "© 2025 Azura Pasut. All Rights Reserved." },
+                'en': { 'page_title': "Azura Pasut - Realize Your Private Paradise in Bali", 'nav_home': "Home", 'nav_siteplan': "Siteplan", 'nav_simulation': "Simulation", 'nav_ownership': "How to Own", 'nav_contact': "Contact", 'hero_title': "Azura Pasut: Where Dreams and Balinese Nature Unite", 'hero_subtitle': "Imagine starting your day with the cool greetings of Mount Batukaru, and ending it with a golden sunset painting at Pasut Beach. Here, amidst the whispers of rice fields, you own not just land, but a canvas for a peaceful and inspiring future.", 'cta_title': "Your First Step Towards Your Dream", 'cta_subtitle': "We believe every dream is precious. Let's have a casual, no-commitment discussion about how you can be part of Azura Pasut's beauty. Our team is ready to listen and assist you.", 'cta_button': "Discuss via WhatsApp", 'siteplan_title': "Designing Your Future: Azura Pasut Siteplan", 'siteplan_disclaimer': "*The siteplan image above is an illustration to help your visualization.", 'calc_title': "Your Smart Investment Simulation", 'calc_step1_title': "1. Define Your Dream Property", 'calc_land_area': "Land Area (m²)", 'calc_price_are': "Price per Are (100 m²)", 'calc_step2_title': "2. Set Up Your Payment Scheme", 'calc_dp_percentage': "Down Payment (DP) (%)", 'calc_installments': "Installment Period (Months)", 'calc_step3_title': "3. Your Simulation Details", 'calc_result_total_price': "Estimated Total Price", 'calc_result_total_dp': "Total DP", 'calc_result_booking_fee': "Booking Fee (Reduces DP)", 'calc_result_remaining_dp': "Remaining DP Payment", 'calc_result_remaining_balance': "Remaining Principal", 'calc_result_monthly_installment': "Estimated Monthly Installment", 'ownership_title': "Easy Guide to Owning Your Unit", 'ownership_step1_title': "Secure Your Chosen Unit", 'ownership_step1_desc': "Make a Booking Fee payment of <strong>IDR 10,000,000</strong> to reserve your unit. This is your first step, and of course, it will be deducted from the down payment (DP).", 'ownership_transfer_title': "Transfer Destination:", 'ownership_bank': "Bank:", 'ownership_account_name': "Account Name:", 'ownership_account_number': "Account Number:", 'ownership_step2_title': "Confirm with Ease", 'ownership_step2_desc': "After a successful transfer, simply send the proof to us via WhatsApp. Our team will assist you promptly.", 'ownership_step3_title': "Congratulations! The Process Begins", 'ownership_step3_desc': "We will immediately verify and send an official receipt as proof that you are one step closer to your private paradise.", 'ownership_cta': "Ready to start? Click to confirm your payment or ask a question.", 'ownership_wa_button': "Confirm via WhatsApp", 'contact_title': "Let's Get in Touch", 'contact_subtitle': "We'd love to hear from you. Please fill out the form below, and our team will get back to you shortly.", 'contact_form_name': "Full Name", 'contact_form_email': "Email Address", 'contact_form_phone': "Phone Number/WhatsApp", 'contact_form_message': "Your Message", 'contact_form_submit': "Send Message", 'footer_text': "© 2025 Azura Pasut. All Rights Reserved." }
             };
 
             // --- FUNGSI GANTI BAHASA ---
             const langIdBtn = document.getElementById('lang-id');
             const langEnBtn = document.getElementById('lang-en');
-
             function switchLanguage(lang) {
                 document.documentElement.lang = lang;
                 document.title = translations[lang]['page_title'];
-
                 document.querySelectorAll('[data-lang]').forEach(el => {
                     const key = el.dataset.lang;
                     if (translations[lang][key]) {
@@ -370,19 +297,39 @@
                         }
                     }
                 });
-                
                 langIdBtn.classList.toggle('active', lang === 'id');
                 langEnBtn.classList.toggle('active', lang === 'en');
             }
-
             langIdBtn.addEventListener('click', () => switchLanguage('id'));
             langEnBtn.addEventListener('click', () => switchLanguage('en'));
 
-            // --- LOGIKA NAVIGASI ---
+            // --- LOGIKA NAVIGASI & MODAL ---
             const navLinks = document.querySelectorAll('.nav-link');
             const pageContents = document.querySelectorAll('.page-content');
+            const modals = document.querySelectorAll('.modal');
+            const closeModalBtns = document.querySelectorAll('[data-dismiss-modal]');
             const activeLinkClasses = 'text-blue-800 border-b-2 border-blue-800 font-semibold';
             const inactiveLinkClasses = 'text-gray-600 font-medium';
+
+            const openModal = (modalId) => {
+                const modal = document.getElementById(modalId);
+                if(modal) {
+                    modal.classList.remove('hidden');
+                    document.body.classList.add('modal-open');
+                }
+            }
+
+            const closeAllModals = () => {
+                modals.forEach(modal => modal.classList.add('hidden'));
+                document.body.classList.remove('modal-open');
+            }
+
+            closeModalBtns.forEach(btn => btn.addEventListener('click', closeAllModals));
+            modals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeAllModals(); // Close if overlay is clicked
+                });
+            });
 
             function showPage(targetId) {
                 pageContents.forEach(content => {
@@ -401,16 +348,21 @@
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    showPage(this.dataset.target);
+                    closeAllModals(); // Close any open modals first
+                    const pageTarget = this.dataset.target;
+                    const modalTarget = this.dataset.modalTarget;
+                    if (pageTarget) {
+                        showPage(pageTarget);
+                    } else if (modalTarget) {
+                        openModal(modalTarget);
+                    }
                 });
             });
-
             showPage('beranda');
 
             // --- LOGIKA FORMULIR KONTAK ---
             const contactForm = document.getElementById('contact-form');
             const formStatus = document.getElementById('form-status');
-
             if(contactForm){
                 contactForm.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -439,7 +391,7 @@
             }
 
             // --- LOGIKA KALKULATOR ---
-            const calculatorPage = document.getElementById('kalkulator');
+            const calculatorPage = document.getElementById('modal-kalkulator');
             if (calculatorPage) {
                 const BOOKING_FEE = 10000000;
                 const landAreaInput = document.getElementById('land-area');
@@ -447,7 +399,6 @@
                 const dpPercentageInput = document.getElementById('dp-percentage');
                 const installmentsInput = document.getElementById('installments');
                 const dpWarning = document.getElementById('dp-warning');
-                
                 const totalPriceEl = document.getElementById('total-price');
                 const totalDpEl = document.getElementById('total-dp');
                 const bookingFeeEl = document.getElementById('booking-fee');
@@ -465,16 +416,13 @@
                     let pricePerAre = parseFloat(pricePerAreInput.value) || 0;
                     let dpPercentage = parseFloat(dpPercentageInput.value) || 0;
                     let installments = parseInt(installmentsInput.value) || 1;
-                    
                     const numberOfAre = landArea / 100;
                     const totalPrice = numberOfAre * pricePerAre;
                     const totalDP = totalPrice * (dpPercentage / 100);
                     const remainingDP = totalDP - BOOKING_FEE;
                     const remainingBalance = totalPrice - totalDP;
                     const monthlyInstallment = remainingBalance > 0 && installments > 0 ? remainingBalance / installments : 0;
-
                     dpWarning.textContent = remainingDP < 0 ? "Total DP lebih kecil dari Booking Fee." : "";
-
                     totalPriceEl.textContent = formatCurrency(totalPrice);
                     bookingFeeEl.textContent = `- ${formatCurrency(BOOKING_FEE)}`;
                     totalDpEl.textContent = formatCurrency(totalDP);
@@ -485,12 +433,11 @@
 
                 const allCalculatorInputs = [landAreaInput, pricePerAreInput, dpPercentageInput, installmentsInput];
                 allCalculatorInputs.forEach(input => input.addEventListener('input', calculateAndDisplay));
-                
                 calculateAndDisplay();
             }
-             // Set initial language
             switchLanguage('id');
         });
     </script>
 </body>
 </html>
+
